@@ -2,6 +2,7 @@
 
 from re import U
 import numpy as np
+import math
 import argparse
 import time
 from multiprocessing import Pool, TimeoutError
@@ -38,11 +39,95 @@ def compute_julia_set_sequential(xmin, xmax, ymin, ymax, im_width, im_height, c)
 
     return julia
 
-def compute_julia_in_parallel(size, xmin, xmax, ymin, ymax, patch, nprocs, c):
+def compute_patch(args):
+    x, y, xmin, xmax, ymin, ymax, size, xmin_of, xmax_of, ymin_of, ymax_of, c = args.values()
 
-    # replace the following code
-    # with a parallel version
-    julia_img = compute_julia_set_sequential(xmin, xmax, ymin, ymax, size, size, c)
+    zabs_max = 10
+    nit_max = 300
+
+    xwidth = xmax - xmin
+    yheight = ymax - ymin
+
+    xwidth_patch = xmax_of - xmin_of
+    yheight_patch = ymax_of - ymin_of
+
+    print(f"patch x: {x} y: {y} width: {xwidth_patch} height: {yheight_patch}")
+
+    julia = np.zeros((xwidth_patch, yheight_patch))
+    for ix in range(xwidth_patch):
+        for iy in range(yheight_patch):
+            nit = 0
+            # Map pixel position to a point in the complex plane
+            z = complex((ix + xmin_of) / size * xwidth + xmin,
+                        (iy + ymin_of) / size * yheight + ymin)
+            # Do the iterations
+            while abs(z) <= zabs_max and nit < nit_max:
+                z = z ** 2 + c
+                nit += 1
+            ratio = nit / nit_max
+            julia[ix, iy] = ratio
+
+    return ((x,y),julia)
+
+def arrange_grid(size, patch, patches):
+    """ Arrange the patches into a grid """
+    julia_img = np.zeros((size, size))
+    for x in range(len(patches)):
+        (x,y), patch_result = patches[x]
+        xmin = x * patch
+        ymin = y * patch
+        julia_img[xmin:xmin+patch, ymin:ymin+patch] = patch_result
+    return julia_img
+
+
+def compute_julia_in_parallel(size, xmin, xmax, ymin, ymax, patch, nprocs, c):
+    """" Compute Julia set in parallel using multiprocessing.Pool """
+
+    """"
+    "--patch", help="patch size in pixels (square images)", type=int
+    "--nprocs", help="number of workers", type=int
+    "size", help="image size in pixels (square images)", type=int
+    
+    We suppose the final image to be a square image of size: size x size.
+    
+    """
+    # Sequential version
+    #return compute_julia_set_sequential(xmin, xmax, ymin, ymax, size, size, c)
+
+    # Parallel version
+    task_list = []
+    n_patch = int(math.ceil(size/patch))
+    patch_grid = np.zeros((n_patch,n_patch)) # 2D array of patches
+    pool = Pool(processes=nprocs)
+
+    for x in range(patch_grid.shape[0]):
+        xmin_of = x * patch
+        xmax_of = (x + 1) * patch
+        if xmax_of > size:
+            xmax_of = size
+        for y in range(patch_grid.shape[1]):
+            ymin_of = y * patch
+            ymax_of = (y + 1) * patch
+            if ymax_of > size:
+                ymax_of = size
+            task_list.append({'x': x,
+                              'y': y,
+                              'xmin': xmin,
+                              'xmax': xmax,
+                              'ymin': ymin,
+                              'ymax': ymax,
+                              'size': size,
+                              'xmin_of': xmin_of,
+                              'xmax_of': xmax_of,
+                              'ymin_of': ymin_of,
+                              'ymax_of': ymax_of,
+                              'c': c})
+
+    completed_patches = pool.map(compute_patch, task_list, 1)
+    pool.close()
+    pool.join()
+
+    julia_img = arrange_grid(size, patch, completed_patches)
 
     return julia_img
 
@@ -64,7 +149,6 @@ if __name__ == "__main__":
     parser.add_argument("--benchmark", help="Whether to execute the script with the benchmark Julia set", action="store_true")
     args = parser.parse_args()
 
-    #print(args)
     if args.group_size is not None:
         GROUP_SIZE = args.group_size
     if args.group_number is not None:
@@ -76,6 +160,9 @@ if __name__ == "__main__":
         c = BENCHMARK_C 
     else:
         c = c_from_group(GROUP_SIZE, GROUP_NUMBER) 
+
+    #TODO remove next line
+    c = complex(-0.835, -0.2321)
 
     stime = time.perf_counter()
     julia_img = compute_julia_in_parallel(
