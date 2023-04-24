@@ -1,10 +1,8 @@
 #! /usr/bin/env python
 
-from re import U
 import numpy as np
 import argparse
 import time
-from multiprocessing import Pool, TimeoutError
 from julia_curve import c_from_group
 
 # Update according to your group size and number (see TUWEL)
@@ -93,7 +91,7 @@ if __name__ == "__main__":
         import matplotlib
         matplotlib.use('agg')
         import matplotlib.pyplot as plt
-        import matplotlib.cm as cm
+
         fig, ax = plt.subplots()
         ax.imshow(julia_img, interpolation='nearest', cmap=plt.get_cmap("hot"))
 
