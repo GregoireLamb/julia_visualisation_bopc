@@ -40,6 +40,7 @@ def compute_julia_set_sequential(xmin, xmax, ymin, ymax, im_width, im_height, c)
     return julia
 
 def compute_patch(args):
+    """ Compute a patch of the Julia set """
     x, y, xmin, xmax, ymin, ymax, size, xmin_of, xmax_of, ymin_of, ymax_of, c = args.values()
 
     zabs_max = 10
@@ -50,8 +51,6 @@ def compute_patch(args):
 
     xwidth_patch = xmax_of - xmin_of
     yheight_patch = ymax_of - ymin_of
-
-    print(f"patch x: {x} y: {y} width: {xwidth_patch} height: {yheight_patch}")
 
     julia = np.zeros((xwidth_patch, yheight_patch))
     for ix in range(xwidth_patch):
@@ -159,10 +158,7 @@ if __name__ == "__main__":
     if args.benchmark:
         c = BENCHMARK_C 
     else:
-        c = c_from_group(GROUP_SIZE, GROUP_NUMBER) 
-
-    #TODO remove next line
-    c = complex(-0.835, -0.2321)
+        c = c_from_group(GROUP_SIZE, GROUP_NUMBER)
 
     stime = time.perf_counter()
     julia_img = compute_julia_in_parallel(
