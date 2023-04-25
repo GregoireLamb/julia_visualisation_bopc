@@ -9,7 +9,7 @@ if __name__ == "__main__":
         df = df.groupby(["size", "patch", "nprocs"]).mean()
         ref_dict = df.loc[df.index.get_level_values("nprocs") == 1, "time"].to_dict()
         ref_dict = {key[0]: value for key, value in ref_dict.items()}
-        df["speedup"] = df["time"] / df.index.get_level_values("size").map(ref_dict)
+        df["speedup"] = df.index.get_level_values("size").map(ref_dict) / df["time"]
         df["efficiency"] = df["speedup"] / df.index.get_level_values("nprocs")
 
         fig, axs = plt.subplots(2, 2,figsize=(9, 5))
