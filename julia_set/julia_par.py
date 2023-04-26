@@ -3,7 +3,7 @@
 import numpy as np
 import argparse
 import time
-from julia_curve import c_from_group
+from code.julia_curve import c_from_group
 
 # Update according to your group size and number (see TUWEL)
 GROUP_SIZE   = None
