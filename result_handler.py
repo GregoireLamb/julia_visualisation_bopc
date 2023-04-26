@@ -29,6 +29,7 @@ if __name__ == "__main__":
 
         handles, labels = axs[0, 0].get_legend_handles_labels()
         fig.legend(handles, labels, loc="upper right", ncol=2)
+        plt.savefig(f"{file[:-4]}.png")
         plt.show()
         plt.close()
 
