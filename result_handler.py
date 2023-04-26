@@ -1,6 +1,8 @@
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+
 
 if __name__ == "__main__":
     files = glob.glob("results/*.dat")
@@ -11,6 +13,14 @@ if __name__ == "__main__":
         ref_dict = {key[0]: value for key, value in ref_dict.items()}
         df["speedup"] = df.index.get_level_values("size").map(ref_dict) / df["time"]
         df["efficiency"] = df["speedup"] / df.index.get_level_values("nprocs")
+
+        fig, ax = plt.subplots(figsize=(12, 4))
+        ax.axis('tight')
+        ax.axis('off')
+        the_table = ax.table(cellText=df.values, colLabels=df.columns, loc='center')
+        pp = PdfPages(f"{file[:-4]}.pdf")
+        pp.savefig(fig, bbox_inches='tight')
+        pp.close()
 
         fig, axs = plt.subplots(2, 2,figsize=(9, 5))
         fig.subplots_adjust(hspace=0.5, wspace=0.5)
@@ -30,7 +40,6 @@ if __name__ == "__main__":
         handles, labels = axs[0, 0].get_legend_handles_labels()
         fig.legend(handles, labels, loc="upper right", ncol=2)
         plt.savefig(f"{file[:-4]}.png")
-        plt.show()
         plt.close()
 
 
