@@ -10,27 +10,27 @@
 # uncomment parameters accordingly
 
 # Exercise 2.2
-NPROCS=(1 2 4 8 16 24 32)
-SIZE=(160 1050)
-PATCH=(25)
-BENCHMARK_SET=1      # c_b
-OUTFILE="output_exp22_1_${SLURM_JOB_ID}.dat"
-# BENCHMARK_SET=0    # c_s
-# OUTFILE="output_exp22_2_${SLURM_JOB_ID}.dat"
+#NPROCS=(1 2 4 8 16 24 32)
+#SIZE=(160 1050)
+#PATCH=(25)
+#BENCHMARK_SET=1      # c_b
+#OUTFILE="../results/output_exp22_1_${SLURM_JOB_ID}.dat"
+#BENCHMARK_SET=0    # c_s
+#OUTFILE="../results/output_exp22_2_${SLURM_JOB_ID}.dat"
 
 # Exercise 2.3
-# NPROCS=(32)
-# SIZE=(750)
-# PATCH=(1 5 10 20 55 150 400)
-# BENCHMARK_SET=0    # c_s
-# OUTFILE="output_exp23_${SLURM_JOB_ID}.dat"
+#NPROCS=(32)
+#SIZE=(750)
+#PATCH=(1 5 10 20 55 150 400)
+#BENCHMARK_SET=0    # c_s
+#OUTFILE="../results/output_exp23_${SLURM_JOB_ID}.dat"
 
 # Exercise 2.4
-# NPROCS=(16)
-# SIZE=(700)
-# PATCH=({1..30})
-# BENCHMARK_SET=0    # c_s
-# OUTFILE="output_exp24_${SLURM_JOB_ID}.dat"
+NPROCS=(16)
+SIZE=(700)
+PATCH=({1..30})
+BENCHMARK_SET=0    # c_s
+OUTFILE="../results/output_exp24_${SLURM_JOB_ID}.dat"
 
 NREP=3
 BINARY="python3 ./julia_par.py"
